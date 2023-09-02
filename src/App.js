@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+
+import personsService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,9 +13,12 @@ const App = () => {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then((response) => {
-      setPersons(response.data);
-    });
+    personsService
+      .getPersons()
+      .then((initialPersons) => {
+        setPersons(initialPersons);
+      })
+      .catch(() => alert(`Failed to get persons.  Please refresh page.`));
   }, []);
 
   const handleSearchInputChange = (event) => {
