@@ -47,9 +47,14 @@ const App = () => {
       name: newName,
       phone: newNumber,
     };
-    setPersons(persons.concat(newPerson));
-    setNewName("");
-    setNewNumber("");
+    personsService
+      .addPerson(newPerson)
+      .then((postedPerson) => {
+        setPersons(persons.concat(postedPerson));
+        setNewName("");
+        setNewNumber("");
+      })
+      .catch(() => alert(`Failed to add person.  Please try again.`))
   };
 
   const allSearchCharsInName = (name) => {

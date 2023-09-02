@@ -7,8 +7,14 @@ const getPersons = async () => {
   return response.data;
 };
 
+const addPerson = async (newPerson) => {
+  const response = await axios.post(baseUrl, newPerson);
+  return response.data;
+};
+
 const exportedFunctions = {
   getPersons,
+  addPerson,
 };
 
 export default exportedFunctions;
