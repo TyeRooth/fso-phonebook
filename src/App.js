@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 
 import personsService from "./services/persons";
 
@@ -11,6 +12,10 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [search, setSearch] = useState("");
+  const [message, setMessage] = useState(null);
+  const [isErrorMessage, setIsErrorMessage] = useState(false);
+
+  //console.log('rendered')
 
   useEffect(() => {
     personsService
@@ -37,6 +42,22 @@ const App = () => {
     return persons.find((person) => person.name === newName);
   };
 
+  const postSuccessMessage = (message) => {
+    setMessage(message);
+    setTimeout(() => {
+      setMessage(null);
+    }, 7000);
+  };
+
+  const postErrorMessage = (message) => {
+    setMessage(message);
+    setIsErrorMessage(true);
+    setTimeout(() => {
+      setMessage(null);
+      setIsErrorMessage(false);
+    }, 7000);
+  };
+
   const updatePhoneForPerson = (newPerson) => {
     if (
       window.confirm(
@@ -55,6 +76,9 @@ const App = () => {
           );
           setNewName("");
           setNewNumber("");
+          postSuccessMessage(
+            `Phone number successfully updated for ${updatedPerson.name}`
+          );
         })
         .catch((error) => alert(`Failed to update number for person.`));
     }
@@ -67,8 +91,8 @@ const App = () => {
       phone: newNumber,
     };
     if (nameInPhonebook()) {
-      updatePhoneForPerson(newPerson)
-      return
+      updatePhoneForPerson(newPerson);
+      return;
     }
     personsService
       .addPerson(newPerson)
@@ -76,6 +100,9 @@ const App = () => {
         setPersons(persons.concat(postedPerson));
         setNewName("");
         setNewNumber("");
+        postSuccessMessage(
+          `Contact ${postedPerson.name} has been added to the phone book`
+        );
       })
       .catch((error) => alert(`Failed to add person.  Please try again.`));
   };
@@ -89,7 +116,10 @@ const App = () => {
           setPersons(persons.filter((person) => person.id !== id));
         })
         .catch((error) => {
-          alert(`Failed to delete person.  Please try again.`);
+          postErrorMessage(
+            `Contact ${personToDelete.name} was already deleted from server`
+          );
+          setPersons(persons.filter((person) => person.id !== id));
         });
     }
   };
@@ -108,6 +138,7 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Notification message={message} isErrorMessage={isErrorMessage} />
       <Filter
         search={search}
         handleSearchInputChange={handleSearchInputChange}
